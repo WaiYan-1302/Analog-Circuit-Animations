@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lecture 6 Animated Explanation — Bipolar Junction Transistor</title>
+<style>
+  :root{
+    --bg:#07111f;
+    --panel:#0d1b2e;
+    --panel2:#10243d;
+    --ink:#eef7ff;
+    --muted:#9fb4c8;
+    --line:#26425f;
+    --blue:#38b5e1;
+    --green:#52d273;
+    --yellow:#ffd166;
+    --orange:#ff9f43;
+    --red:#ff5d6c;
+    --purple:#a78bfa;
+    --shadow:0 18px 60px rgba(0,0,0,.35);
+    --radius:22px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:radial-gradient(circle at top left,#102b4a 0,#07111f 38%,#040914 100%);color:var(--ink);font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;}
+  body{line-height:1.55}
+  .wrap{width:min(1180px,94vw);margin:0 auto;padding:28px 0 60px}
+  .hero{display:grid;grid-template-columns:1.1fr .9fr;gap:22px;align-items:stretch;margin-bottom:18px}
+  .card{background:linear-gradient(145deg,rgba(16,36,61,.96),rgba(9,19,34,.96));border:1px solid rgba(120,180,220,.18);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .heroText{padding:30px}
+  .tag{display:inline-flex;gap:8px;align-items:center;color:#dff7ff;background:rgba(56,181,225,.14);border:1px solid rgba(56,181,225,.35);padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;margin-bottom:14px}
+  h1{font-size:clamp(30px,5vw,56px);line-height:1;margin:0 0 14px;letter-spacing:-.04em}
+  h2{font-size:clamp(24px,3vw,36px);line-height:1.08;margin:0 0 10px;letter-spacing:-.03em}
+  h3{font-size:22px;line-height:1.15;margin:0 0 10px}
+  p{color:var(--muted);margin:8px 0}
+  strong{color:var(--ink)}
+  .formula{font-family:"Cambria Math","Times New Roman",serif;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 12px;color:#fff;display:inline-block;margin:6px 0;font-size:18px}
+  .formula.block{display:block;text-align:center;font-size:22px;padding:16px}
+  .heroVisual{position:relative;min-height:340px;padding:18px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 10%,rgba(56,181,225,.24),transparent 36%)}
+  .chip{width:96%;height:86%;border-radius:28px;background:linear-gradient(180deg,#132845,#071424);border:1px solid rgba(255,255,255,.12);position:relative;padding:22px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+  .chip:before{content:"";position:absolute;inset:-40px;background:repeating-linear-gradient(90deg,transparent 0 28px,rgba(56,181,225,.08) 29px 30px);transform:rotate(-18deg);opacity:.5}
+  .npnMini{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px}
+  .region{height:120px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;letter-spacing:.06em;border:1px solid rgba(255,255,255,.15)}
+  .region.n{background:linear-gradient(180deg,rgba(56,181,225,.35),rgba(56,181,225,.1))}
+  .region.p{background:linear-gradient(180deg,rgba(255,93,108,.34),rgba(255,93,108,.1))}
+  .leadRow{position:relative;z-index:2;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;color:#d9f7ff;font-weight:800}
+  .dot{width:9px;height:9px;background:var(--blue);border-radius:50%;position:absolute;animation: drift 2.2s linear infinite;box-shadow:0 0 14px var(--blue)}
+  .dot.d1{top:50%;left:9%;animation-delay:0s}.dot.d2{top:42%;left:9%;animation-delay:.35s}.dot.d3{top:59%;left:9%;animation-delay:.7s}.dot.d4{top:48%;left:9%;animation-delay:1.1s}
+  @keyframes drift{0%{transform:translateX(0) scale(.8);opacity:0}12%{opacity:1}70%{opacity:1}100%{transform:translateX(360px) scale(1.15);opacity:0}}
+  .tabs{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 18px;position:sticky;top:0;z-index:10;padding:12px 0;background:linear-gradient(180deg,rgba(7,17,31,.95),rgba(7,17,31,.78));backdrop-filter:blur(10px)}
+  .tab{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--muted);padding:10px 14px;border-radius:999px;font-weight:800;cursor:pointer;transition:.2s}
+  .tab:hover{color:#fff;border-color:rgba(56,181,225,.5)}
+  .tab.active{background:linear-gradient(135deg,var(--blue),#2bd8b6);color:#03101b;border-color:transparent}
+  .section{display:none;animation:fade .3s ease}
+  .section.active{display:block}
+  @keyframes fade{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .pad{padding:22px}
+  .note{border-left:4px solid var(--blue);padding:12px 14px;background:rgba(56,181,225,.08);border-radius:0 14px 14px 0;color:#d8f7ff;margin:12px 0}
+  .warn{border-left-color:var(--orange);background:rgba(255,159,67,.08)}
+  .danger{border-left-color:var(--red);background:rgba(255,93,108,.08)}
+  .good{border-left-color:var(--green);background:rgba(82,210,115,.08)}
+  .table{width:100%;border-collapse:collapse;margin-top:10px;overflow:hidden;border-radius:14px}
+  .table th,.table td{padding:12px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;color:var(--muted)}
+  .table th{color:#fff;background:rgba(255,255,255,.06)}
+  .table tr:last-child td{border-bottom:none}
+  .pill{display:inline-flex;align-items:center;padding:4px 10px;border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  .pill.activeP{background:rgba(82,210,115,.16);color:#a7ffc0;border:1px solid rgba(82,210,115,.42)}
+  .pill.satP{background:rgba(255,209,102,.16);color:#ffecb0;border:1px solid rgba(255,209,102,.42)}
+  .pill.cutP{background:rgba(255,93,108,.16);color:#ffb5bd;border:1px solid rgba(255,93,108,.42)}
+  .controls{display:grid;gap:12px;margin-top:12px}
+  label{display:grid;gap:6px;color:#dbeeff;font-weight:800;font-size:14px}
+  input[type=range]{width:100%;accent-color:var(--blue)}
+  input[type=number]{width:100%;padding:11px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.18);color:#fff;font-size:15px}
+  .btnRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  button{border:0;border-radius:14px;padding:10px 13px;font-weight:900;cursor:pointer;color:#03101b;background:var(--blue);transition:.2s}
+  button:hover{filter:brightness(1.1);transform:translateY(-1px)}
+  button.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#dbeeff}
+  .readout{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+  .metric{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:12px}
+  .metric small{display:block;color:var(--muted);font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.05em}.metric b{font-size:22px;color:#fff}
+  svg{max-width:100%;height:auto;display:block}
+  .svgCard{background:rgba(3,9,18,.45);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:12px;min-height:280px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .carrier{filter:drop-shadow(0 0 7px rgba(56,181,225,.95))}
+  .carrier.electron{fill:#38b5e1}.carrier.hole{fill:#ff5d6c}.carrier.base{fill:#ffd166}
+  .junctionGlow{opacity:.6;transition:.3s}
+  .axis{stroke:#89a6c0;stroke-width:2}.gridLine{stroke:#24425e;stroke-width:1}.curve{fill:none;stroke-width:3}.curve1{stroke:#38b5e1}.curve2{stroke:#52d273}.curve3{stroke:#ffd166}.qdot{fill:#ff5d6c;stroke:#fff;stroke-width:2;filter:drop-shadow(0 0 8px #ff5d6c)}
+  .loadLine{stroke:#fff;stroke-width:2;stroke-dasharray:8 6;opacity:.75}.satLine{stroke:#ffd166;stroke-width:3;stroke-dasharray:4 5}
+  .flowPath{stroke:#38b5e1;stroke-width:4;stroke-dasharray:10 12;fill:none;animation:dash 1.2s linear infinite}.reversePath{stroke:#ffd166;stroke-width:3;stroke-dasharray:7 9;fill:none;animation:dashReverse 1.1s linear infinite}
+  @keyframes dash{to{stroke-dashoffset:-44}}@keyframes dashReverse{to{stroke-dashoffset:38}}
+  .terminal{font-weight:900;fill:#fff}.tiny{font-size:12px;fill:#9fb4c8}.labelSvg{font-size:14px;fill:#dff7ff;font-weight:800}.bigSvg{font-size:20px;fill:#fff;font-weight:900}
+  .stepper{display:grid;gap:12px;margin-top:12px}.step{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);border-radius:16px;padding:13px}.step strong{display:block;margin-bottom:3px}
+  .calcGrid{display:grid;grid-template-columns:340px 1fr;gap:18px}.numGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.resultBox{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:16px}.resultBox .line{display:flex;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:8px 0;color:var(--muted);gap:12px}.resultBox .line:last-child{border-bottom:0}.resultBox b{color:#fff}.modeBanner{font-size:22px;font-weight:1000;margin:10px 0;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1)}
+  .memory{display:grid;gap:10px}.memory .item{padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+  .item b{color:#fff}.footer{margin-top:20px;color:var(--muted);text-align:center;font-size:13px}
+  @media (max-width:900px){.hero,.grid2,.grid3,.calcGrid{grid-template-columns:1fr}.readout{grid-template-columns:1fr}.tabs{position:static}.dot{display:none}.heroVisual{min-height:270px}.region{height:90px}.calcGrid{gap:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div class="card heroText">
+      <div class="tag">Lecture 6 • Bipolar Junction Transistor (1)</div>
+      <h1>BJT, animated from physics to Q-point</h1>
+      <p><strong>Core idea:</strong> a BJT is a three-terminal nonlinear device where the base-emitter condition controls collector-emitter current. In active mode, it behaves like a controlled current source; in saturation, it behaves more like a closed switch.</p>
+      <div class="formula block">I<sub>C</sub> ≈ I<sub>S</sub>e<sup>V<sub>BE</sub>/V<sub>T</sub></sup>, &nbsp; I<sub>C</sub> = βI<sub>B</sub> only in active mode</div>
+      <div class="note good"><strong>Exam anchor:</strong> Assume active → solve → compute V<sub>CE</sub> → check region. Never use I<sub>C</sub> = βI<sub>B</sub> after saturation is detected.</div>
+    </div>
+    <div class="card heroVisual">
+      <div class="chip">
+        <div class="leadRow"><span>Emitter</span><span>Base</span><span>Collector</span></div>
+        <div class="npnMini">
+          <div class="region n">N+</div>
+          <div class="region p">P</div>
+          <div class="region n">N</div>
+        </div>
+        <div class="leadRow"><span>injects</span><span>thin control</span><span>collects</span></div>
+        <span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="dot d4"></span>
+      </div>
+    </div>
+  </section>
+
+  <nav class="tabs" aria-label="Lesson tabs">
+    <button class="tab active" data-tab="physics">1. Physics</button>
+    <button class="tab" data-tab="modes">2. Modes</button>
+    <button class="tab" data-tab="qpoint">3. Q-point solver</button>
+    <button class="tab" data-tab="bias">4. Biasing & PVT</button>
+    <button class="tab" data-tab="checklist">5. Exam memory</button>
+  </nav>
+
+  <section id="physics" class="section active">
+    <div class="grid2">
+      <div class="card pad">
+        <h2>Why a BJT amplifies</h2>
+        <p>Think of the emitter as a carrier launcher, the base as a thin gate, and the collector as a strong vacuum cleaner. The base-emitter junction is forward biased, so carriers are injected. The base is thin, so most carriers do not recombine there. The collector-base junction is reverse biased, so its electric field sweeps carriers into the collector.</p>
+        <div class="note"><strong>Not two separate diodes:</strong> transistor action needs the two junctions to be physically coupled through a thin base. If you separate the two PN junctions, the collector cannot “catch” carriers injected by the emitter.</div>
+        <table class="table">
+          <tr><th>Part</th><th>Physical job</th><th>Circuit meaning</th></tr>
+          <tr><td>Emitter</td><td>Heavily doped carrier injector</td><td>Supplies most current</td></tr>
+          <tr><td>Base</td><td>Very thin control terminal</td><td>Small I<sub>B</sub> controls large I<sub>C</sub></td></tr>
+          <tr><td>Collector</td><td>Reverse-biased collection region</td><td>Receives controlled current</td></tr>
+        </table>
+      </div>
+      <div class="card pad">
+        <h2>Interactive physics view</h2>
+        <p>Choose a mode. Watch how carriers and junction biasing change.</p>
+        <div class="btnRow">
+          <button class="secondary modeBtn" data-mode="active">Active</button>
+          <button class="secondary modeBtn" data-mode="sat">Saturation</button>
+          <button class="secondary modeBtn" data-mode="cutoff">Cutoff</button>
+        </div>
+        <div class="svgCard" style="margin-top:12px">
+          <svg id="physicsSvg" viewBox="0 0 620 310" role="img" aria-label="Animated NPN BJT cross-section">
+            <defs>
+              <linearGradient id="nGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#38b5e1" stop-opacity=".42"/><stop offset="1" stop-color="#38b5e1" stop-opacity=".12"/></linearGradient>
+              <linearGradient id="pGrad" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ff5d6c" stop-opacity=".38"/><stop offset="1" stop-color="#ff5d6c" stop-opacity=".11"/></linearGradient>
+              <filter id="glow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+            </defs>
+            <rect x="30" y="60" width="180" height="160" rx="18" fill="url(#nGrad)" stroke="#4cc7ef"/>
+            <rect x="210" y="60" width="120" height="160" rx="8" fill="url(#pGrad)" stroke="#ff8390"/>
+            <rect x="330" y="60" width="250" height="160" rx="18" fill="url(#nGrad)" stroke="#4cc7ef"/>
+            <text x="120" y="48" text-anchor="middle" class="bigSvg">Emitter N+</text>
+            <text x="270" y="48" text-anchor="middle" class="bigSvg">Base P</text>
+            <text x="455" y="48" text-anchor="middle" class="bigSvg">Collector N</text>
+            <rect id="bejGlow" x="198" y="54" width="24" height="172" rx="12" fill="#52d273" class="junctionGlow" filter="url(#glow)"/>
+            <rect id="bcjGlow" x="318" y="54" width="24" height="172" rx="12" fill="#38b5e1" class="junctionGlow" filter="url(#glow)"/>
+            <text id="bejLabel" x="210" y="246" text-anchor="middle" class="labelSvg">BEJ: forward</text>
+            <text id="bcjLabel" x="330" y="246" text-anchor="middle" class="labelSvg">BCJ: reverse</text>
+            <path id="mainFlow" class="flowPath" d="M65,145 C150,110 205,112 255,145 C295,170 345,145 550,105"/>
+            <path id="oppFlow" class="reversePath" d="M545,180 C455,220 390,215 337,170" opacity="0"/>
+            <g id="carriers"></g>
+            <text id="modeExplain" x="310" y="288" text-anchor="middle" class="labelSvg">Most injected electrons cross the thin base and are swept into collector.</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="modes" class="section">
+    <div class="grid2">
+      <div class="card pad">
+        <h2>Large-signal operation modes</h2>
+        <p>Use the sliders to change the base-emitter and collector-emitter voltages. The animation decides the BJT region using the same logic you use in circuit analysis.</p>
+        <div class="controls">
+          <label>V<sub>BE</sub> = <span id="vbeText">0.70 V</span><input id="vbeSlider" type="range" min="0" max="0.9" step="0.01" value="0.70"></label>
+          <label>V<sub>CE</sub> = <span id="vceText">2.00 V</span><input id="vceSlider" type="range" min="0" max="5" step="0.01" value="2.00"></label>
+        </div>
+        <div id="modeBanner" class="modeBanner">Region: Active</div>
+        <div class="readout">
+          <div class="metric"><small>BEJ</small><b id="bejState">Forward</b></div>
+          <div class="metric"><small>BCJ</small><b id="bcjState">Reverse</b></div>
+          <div class="metric"><small>Rule</small><b id="modeRule">I<sub>C</sub>=βI<sub>B</sub></b></div>
+        </div>
+        <div id="modeText" class="note good">Active: BEJ forward, BCJ reverse. This is the amplifier region.</div>
+      </div>
+      <div class="card pad">
+        <h2>I-V picture and Q-point</h2>
+        <p>The dot is the operating point. In active mode, the dot sits on a flat-ish collector-current curve. In saturation, it is pushed near V<sub>CE,sat</sub>.</p>
+        <div class="svgCard">
+          <svg id="ivSvg" viewBox="0 0 560 360" role="img" aria-label="BJT output characteristics">
+            <line class="axis" x1="70" y1="305" x2="500" y2="305"/>
+            <line class="axis" x1="70" y1="305" x2="70" y2="40"/>
+            <text x="500" y="333" text-anchor="end" class="labelSvg">V<tspan baseline-shift="sub">CE</tspan></text>
+            <text x="34" y="50" text-anchor="middle" class="labelSvg" transform="rotate(-90,34,50)">I<tspan baseline-shift="sub">C</tspan></text>
+            <line class="satLine" x1="90" y1="305" x2="90" y2="52"/>
+            <text x="96" y="48" class="tiny">V<tspan baseline-shift="sub">CE,sat</tspan></text>
+            <path class="curve curve1" d="M75,260 C90,220 110,214 160,212 L500,195"/>
+            <path class="curve curve2" d="M75,215 C90,170 112,160 165,158 L500,132"/>
+            <path class="curve curve3" d="M75,175 C90,125 112,110 165,108 L500,78"/>
+            <text x="430" y="196" class="tiny">low V<tspan baseline-shift="sub">BE</tspan></text>
+            <text x="430" y="80" class="tiny">high V<tspan baseline-shift="sub">BE</tspan></text>
+            <line id="loadLine" class="loadLine" x1="84" y1="62" x2="470" y2="305"/>
+            <circle id="ivDot" class="qdot" cx="300" cy="130" r="8"/>
+            <text id="ivDotLabel" x="312" y="122" class="labelSvg">Q</text>
+            <rect x="76" y="312" width="22" height="12" rx="4" fill="#ffd166" opacity=".3"/>
+            <text x="106" y="323" class="tiny">saturation zone</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-top:18px">
+      <h2>Mode summary table</h2>
+      <table class="table">
+        <tr><th>Mode</th><th>BEJ</th><th>BCJ</th><th>Voltage condition</th><th>Current relation</th><th>Main use</th></tr>
+        <tr><td><span class="pill activeP">Active</span></td><td>Forward</td><td>Reverse</td><td>V<sub>CE</sub> &gt; V<sub>CE,sat</sub></td><td>I<sub>C</sub> = βI<sub>B</sub></td><td>Amplifier / current source</td></tr>
+        <tr><td><span class="pill satP">Saturation</span></td><td>Forward</td><td>Forward</td><td>V<sub>CE</sub> ≈ V<sub>CE,sat</sub> ≈ 0.2 V</td><td>I<sub>C</sub> ≠ βI<sub>B</sub></td><td>Closed switch</td></tr>
+        <tr><td><span class="pill cutP">Cutoff</span></td><td>Reverse</td><td>Reverse</td><td>V<sub>BE</sub> too small</td><td>I<sub>C</sub> ≈ 0</td><td>Open switch</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section id="qpoint" class="section">
+    <div class="card pad">
+      <h2>Q-point solver: lecture-style large-signal analysis</h2>
+      <p>This calculator follows the exact exam flow: <strong>assume active → solve → check V<sub>CE</sub> → redo as saturation if needed</strong>. The circuit is the common lecture pattern: base voltage source, emitter resistor R<sub>E</sub>, collector resistor R<sub>C</sub>, and supply V<sub>CC</sub>.</p>
+      <div class="calcGrid">
+        <div>
+          <div class="numGrid">
+            <label>V<sub>B</sub> source (V)<input id="inVB" type="number" value="4" step="0.1"></label>
+            <label>V<sub>CC</sub> (V)<input id="inVCC" type="number" value="10" step="0.1"></label>
+            <label>R<sub>C</sub> (kΩ)<input id="inRC" type="number" value="4.7" step="0.1"></label>
+            <label>R<sub>E</sub> (kΩ)<input id="inRE" type="number" value="3.3" step="0.1"></label>
+            <label>β<input id="inBeta" type="number" value="100" step="1"></label>
+            <label>V<sub>CE,sat</sub> (V)<input id="inVCEsat" type="number" value="0.2" step="0.01"></label>
+          </div>
+          <div class="btnRow">
+            <button id="loadEx1">Lecture Ex. Active</button>
+            <button id="loadEx2" class="secondary">Lecture Ex. Saturation</button>
+          </div>
+          <div id="qMode" class="modeBanner">Active mode confirmed</div>
+        </div>
+        <div class="grid2">
+          <div class="resultBox">
+            <h3>Active assumption</h3>
+            <div class="line"><span>I<sub>E</sub> = (V<sub>B</sub>−0.7)/R<sub>E</sub></span><b id="aIE">1.00 mA</b></div>
+            <div class="line"><span>I<sub>B</sub> = I<sub>E</sub>/(1+β)</span><b id="aIB">9.90 µA</b></div>
+            <div class="line"><span>I<sub>C</sub> = I<sub>E</sub>−I<sub>B</sub></span><b id="aIC">0.99 mA</b></div>
+            <div class="line"><span>V<sub>E</sub> = I<sub>E</sub>R<sub>E</sub></span><b id="aVE">3.30 V</b></div>
+            <div class="line"><span>V<sub>C</sub> = V<sub>CC</sub>−I<sub>C</sub>R<sub>C</sub></span><b id="aVC">5.35 V</b></div>
+            <div class="line"><span>V<sub>CE</sub> = V<sub>C</sub>−V<sub>E</sub></span><b id="aVCE">2.05 V</b></div>
+          </div>
+          <div class="resultBox">
+            <h3>Final region result</h3>
+            <div class="line"><span>Region</span><b id="fRegion">Active</b></div>
+            <div class="line"><span>I<sub>C,Q</sub></span><b id="fIC">0.99 mA</b></div>
+            <div class="line"><span>V<sub>CE,Q</sub></span><b id="fVCE">2.05 V</b></div>
+            <div class="line"><span>I<sub>B</sub></span><b id="fIB">9.90 µA</b></div>
+            <div class="line"><span>Forced β = I<sub>C</sub>/I<sub>B</sub></span><b id="fForced">100</b></div>
+            <div class="note" id="qComment">Since V<sub>CE</sub> &gt; V<sub>CE,sat</sub>, the active assumption is valid.</div>
+          </div>
+        </div>
+      </div>
+      <div class="svgCard" style="margin-top:18px">
+        <svg id="circuitSvg" viewBox="0 0 850 320" aria-label="BJT bias circuit animation">
+          <defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#38b5e1"/></marker></defs>
+          <line x1="540" y1="35" x2="540" y2="80" stroke="#dff7ff" stroke-width="4"/>
+          <text x="540" y="25" text-anchor="middle" class="labelSvg">V<tspan baseline-shift="sub">CC</tspan></text>
+          <rect x="515" y="80" width="50" height="86" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/>
+          <text x="580" y="128" class="labelSvg">R<tspan baseline-shift="sub">C</tspan></text>
+          <line x1="540" y1="166" x2="540" y2="192" stroke="#dff7ff" stroke-width="4"/>
+          <circle cx="540" cy="192" r="5" fill="#fff"/>
+          <text x="562" y="196" class="labelSvg">C</text>
+          <line x1="410" y1="192" x2="500" y2="192" stroke="#dff7ff" stroke-width="4"/>
+          <text x="400" y="196" text-anchor="end" class="labelSvg">B</text>
+          <line x1="500" y1="192" x2="530" y2="165" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="500" y1="192" x2="530" y2="222" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="530" y1="222" x2="540" y2="265" stroke="#dff7ff" stroke-width="4"/>
+          <path d="M524,238 L548,232 L536,252 Z" fill="#dff7ff"/>
+          <circle cx="540" cy="265" r="5" fill="#fff"/>
+          <text x="562" y="270" class="labelSvg">E</text>
+          <rect x="515" y="265" width="50" height="40" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/>
+          <text x="580" y="292" class="labelSvg">R<tspan baseline-shift="sub">E</tspan></text>
+          <line x1="540" y1="305" x2="540" y2="315" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="510" y1="315" x2="570" y2="315" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="520" y1="324" x2="560" y2="324" stroke="#dff7ff" stroke-width="3"/>
+          <line x1="530" y1="331" x2="550" y2="331" stroke="#dff7ff" stroke-width="2"/>
+          <line x1="270" y1="192" x2="410" y2="192" stroke="#dff7ff" stroke-width="4"/>
+          <circle cx="235" cy="192" r="34" fill="rgba(56,181,225,.10)" stroke="#38b5e1" stroke-width="3"/>
+          <text x="235" y="198" text-anchor="middle" class="labelSvg">V<tspan baseline-shift="sub">B</tspan></text>
+          <line x1="235" y1="226" x2="235" y2="315" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="205" y1="315" x2="265" y2="315" stroke="#dff7ff" stroke-width="4"/>
+          <line id="icArrow" x1="612" y1="62" x2="612" y2="165" stroke="#38b5e1" stroke-width="5" marker-end="url(#arrow)" opacity=".8"/>
+          <line id="ibArrow" x1="320" y1="170" x2="405" y2="170" stroke="#ffd166" stroke-width="4" marker-end="url(#arrow)" opacity=".8"/>
+          <line id="ieArrow" x1="620" y1="235" x2="620" y2="307" stroke="#52d273" stroke-width="5" marker-end="url(#arrow)" opacity=".8"/>
+          <text x="630" y="110" class="labelSvg">I<tspan baseline-shift="sub">C</tspan></text>
+          <text x="350" y="160" class="labelSvg">I<tspan baseline-shift="sub">B</tspan></text>
+          <text x="632" y="278" class="labelSvg">I<tspan baseline-shift="sub">E</tspan></text>
+          <text id="circuitState" x="110" y="55" class="bigSvg">Active: current controlled by base</text>
+          <text x="110" y="85" class="tiny">Always finish by checking V<tspan baseline-shift="sub">CE</tspan> = V<tspan baseline-shift="sub">C</tspan> − V<tspan baseline-shift="sub">E</tspan>.</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="bias" class="section">
+    <div class="grid2">
+      <div class="card pad">
+        <h2>Why biasing matters</h2>
+        <p>The BJT exponential equation is powerful, but dangerous: small changes in V<sub>BE</sub> can create big current changes. Also, β, V<sub>BE</sub>, and V<sub>CE,sat</sub> change with process, supply, and temperature.</p>
+        <div class="note warn"><strong>PVT:</strong> Process, Voltage, Temperature. At constant I<sub>C</sub>, V<sub>BE</sub> typically changes by about −2 mV/°C. β also varies with temperature and collector current.</div>
+        <p>Good bias design uses a voltage divider for base voltage and an emitter resistor for negative feedback:</p>
+        <div class="formula block">V<sub>E</sub> ≈ V<sub>B</sub> − 0.7, &nbsp; I<sub>E</sub> ≈ V<sub>E</sub>/R<sub>E</sub></div>
+        <div class="note good">Emitter resistor intuition: if current rises, V<sub>E</sub> rises, so V<sub>BE</sub> falls. That pushes current back down. It self-corrects.</div>
+      </div>
+      <div class="card pad">
+        <h2>Bias design mini-calculator</h2>
+        <p>Design a robust active-mode bias circuit using lecture-style rules.</p>
+        <div class="numGrid">
+          <label>V<sub>CC</sub> (V)<input id="dVCC" type="number" value="12" step="0.1"></label>
+          <label>Target I<sub>C</sub> (mA)<input id="dIC" type="number" value="1" step="0.1"></label>
+          <label>V<sub>RE</sub> fraction of V<sub>CC</sub><input id="dFRE" type="number" value="0.333" step="0.01"></label>
+          <label>V<sub>RC</sub> fraction of V<sub>CC</sub><input id="dFRC" type="number" value="0.333" step="0.01"></label>
+          <label>R<sub>1</sub>+R<sub>2</sub> total (kΩ)<input id="dRT" type="number" value="120" step="1"></label>
+          <label>β for check<input id="dBeta" type="number" value="100" step="1"></label>
+        </div>
+        <div class="resultBox" style="margin-top:12px">
+          <div class="line"><span>V<sub>E</sub> = fraction × V<sub>CC</sub></span><b id="dVE">4.00 V</b></div>
+          <div class="line"><span>R<sub>E</sub> ≈ V<sub>E</sub>/I<sub>C</sub></span><b id="dRE">4.00 kΩ</b></div>
+          <div class="line"><span>R<sub>C</sub> = V<sub>RC</sub>/I<sub>C</sub></span><b id="dRC">4.00 kΩ</b></div>
+          <div class="line"><span>V<sub>B</sub> = V<sub>E</sub> + 0.7</span><b id="dVB">4.70 V</b></div>
+          <div class="line"><span>R<sub>2</sub> = (V<sub>B</sub>/V<sub>CC</sub>)(R<sub>1</sub>+R<sub>2</sub>)</span><b id="dR2">47.0 kΩ</b></div>
+          <div class="line"><span>R<sub>1</sub> = total − R<sub>2</sub></span><b id="dR1">73.0 kΩ</b></div>
+          <div class="line"><span>Robustness: R<sub>B</sub>/(1+β) vs R<sub>E</sub></span><b id="dRobust">OK</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card pad" style="margin-top:18px">
+      <h2>Voltage divider bias visual</h2>
+      <div class="svgCard">
+        <svg viewBox="0 0 820 310" aria-label="Voltage divider BJT bias circuit">
+          <defs><marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#52d273"/></marker></defs>
+          <line x1="210" y1="35" x2="210" y2="75" stroke="#dff7ff" stroke-width="4"/><text x="210" y="25" text-anchor="middle" class="labelSvg">V<tspan baseline-shift="sub">CC</tspan></text>
+          <rect x="185" y="75" width="50" height="70" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/><text x="145" y="116" class="labelSvg">R<tspan baseline-shift="sub">1</tspan></text>
+          <circle cx="210" cy="158" r="6" fill="#fff"/><text x="170" y="164" class="labelSvg">V<tspan baseline-shift="sub">B</tspan></text>
+          <rect x="185" y="172" width="50" height="70" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/><text x="145" y="215" class="labelSvg">R<tspan baseline-shift="sub">2</tspan></text>
+          <line x1="210" y1="242" x2="210" y2="270" stroke="#dff7ff" stroke-width="4"/><line x1="175" y1="270" x2="245" y2="270" stroke="#dff7ff" stroke-width="4"/><line x1="190" y1="280" x2="230" y2="280" stroke="#dff7ff" stroke-width="3"/>
+          <line x1="216" y1="158" x2="445" y2="158" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="545" y1="35" x2="545" y2="75" stroke="#dff7ff" stroke-width="4"/><text x="545" y="25" text-anchor="middle" class="labelSvg">V<tspan baseline-shift="sub">CC</tspan></text>
+          <rect x="520" y="75" width="50" height="80" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/><text x="583" y="120" class="labelSvg">R<tspan baseline-shift="sub">C</tspan></text>
+          <line x1="545" y1="155" x2="545" y2="178" stroke="#dff7ff" stroke-width="4"/><line x1="445" y1="158" x2="510" y2="178" stroke="#dff7ff" stroke-width="4"/>
+          <line x1="510" y1="178" x2="540" y2="148" stroke="#dff7ff" stroke-width="4"/><line x1="510" y1="178" x2="540" y2="210" stroke="#dff7ff" stroke-width="4"/><line x1="540" y1="210" x2="545" y2="240" stroke="#dff7ff" stroke-width="4"/><path d="M530,221 L553,217 L543,237 Z" fill="#dff7ff"/>
+          <rect x="520" y="240" width="50" height="45" rx="8" fill="rgba(255,255,255,.08)" stroke="#9fb4c8"/><text x="583" y="269" class="labelSvg">R<tspan baseline-shift="sub">E</tspan></text>
+          <line x1="545" y1="285" x2="545" y2="300" stroke="#dff7ff" stroke-width="4"/>
+          <path d="M620,250 C680,230 700,190 670,155" stroke="#52d273" stroke-width="4" fill="none" marker-end="url(#arrow2)"/>
+          <text x="650" y="255" class="labelSvg">negative feedback</text>
+          <text x="618" y="95" class="tiny">R<tspan baseline-shift="sub">C</tspan> converts I<tspan baseline-shift="sub">C</tspan> to output voltage.</text>
+          <text x="618" y="117" class="tiny">R<tspan baseline-shift="sub">E</tspan> stabilizes current.</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="checklist" class="section">
+    <div class="grid2">
+      <div class="card pad">
+        <h2>Exam-solving checklist</h2>
+        <div class="stepper">
+          <div class="step"><strong>1. Identify analysis type</strong><span>For this lecture: DC / large-signal Q-point analysis.</span></div>
+          <div class="step"><strong>2. Assume active first</strong><span>Use V<sub>BE</sub> ≈ 0.7 V and I<sub>C</sub> = βI<sub>B</sub>.</span></div>
+          <div class="step"><strong>3. Solve currents and node voltages</strong><span>Find I<sub>E</sub>, I<sub>B</sub>, I<sub>C</sub>, V<sub>E</sub>, V<sub>C</sub>.</span></div>
+          <div class="step"><strong>4. Check V<sub>CE</sub></strong><span>V<sub>CE</sub> = V<sub>C</sub> − V<sub>E</sub>. If V<sub>CE</sub> &gt; V<sub>CE,sat</sub>, active is valid.</span></div>
+          <div class="step"><strong>5. If active fails, redo as saturation</strong><span>Use V<sub>BE</sub> ≈ 0.7 V and V<sub>CE</sub> ≈ 0.2 V. Do not use I<sub>C</sub>=βI<sub>B</sub>.</span></div>
+        </div>
+      </div>
+      <div class="card pad">
+        <h2>Memory cards</h2>
+        <div class="memory">
+          <div class="item"><b>Active mode:</b> BEJ forward, BCJ reverse. Amplifier region. I<sub>C</sub>=βI<sub>B</sub>.</div>
+          <div class="item"><b>Saturation:</b> both junctions forward. Switch-on region. I<sub>C</sub> is limited by the external circuit.</div>
+          <div class="item"><b>Cutoff:</b> both junctions reverse. Switch-off region. I<sub>C</sub>≈0.</div>
+          <div class="item"><b>V<sub>CE</sub> check:</b> if V<sub>CE</sub> becomes too small, the transistor cannot keep collector current controlled by β anymore.</div>
+          <div class="item"><b>Biasing:</b> emitter resistor makes current stable; voltage divider makes base voltage less dependent on β.</div>
+        </div>
+        <div class="note danger" style="margin-top:14px"><strong>Most dangerous mistake:</strong> calculating I<sub>C</sub> = βI<sub>B</sub>, getting impossible V<sub>CE</sub>, and still keeping the active-mode answer.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">Self-contained HTML animation for Analog Electronic Circuits — Lecture 6: BJT (1).</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+// Tabs
+$$('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    $$('.tab').forEach(b=>b.classList.remove('active'));
+    $$('.section').forEach(s=>s.classList.remove('active'));
+    btn.classList.add('active');
+    $('#' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// Physics animation
+const carriers = $('#carriers');
+let physicsMode = 'active';
+function drawCarriers(){
+  carriers.innerHTML = '';
+  const n = physicsMode === 'cutoff' ? 6 : 18;
+  for(let i=0;i<n;i++){
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('r', physicsMode === 'cutoff' ? 3.5 : 5);
+    c.setAttribute('class','carrier electron');
+    c.style.opacity = physicsMode === 'cutoff' ? .25 : .9;
+    c.dataset.phase = Math.random()*Math.PI*2;
+    c.dataset.speed = 0.6 + Math.random()*0.7;
+    carriers.appendChild(c);
+  }
+}
+function setPhysicsMode(m){
+  physicsMode = m;
+  const bej = $('#bejGlow'), bcj = $('#bcjGlow'), bejL = $('#bejLabel'), bcjL = $('#bcjLabel'), main = $('#mainFlow'), opp = $('#oppFlow'), txt = $('#modeExplain');
+  if(m==='active'){
+    bej.setAttribute('fill','#52d273'); bcj.setAttribute('fill','#38b5e1');
+    bej.setAttribute('opacity','.55'); bcj.setAttribute('opacity','.55');
+    bejL.textContent='BEJ: forward'; bcjL.textContent='BCJ: reverse';
+    main.setAttribute('opacity','1'); opp.setAttribute('opacity','0');
+    txt.textContent='Active: carriers cross the thin base and are swept by collector field.';
+  }else if(m==='sat'){
+    bej.setAttribute('fill','#52d273'); bcj.setAttribute('fill','#ffd166');
+    bej.setAttribute('opacity','.65'); bcj.setAttribute('opacity','.75');
+    bejL.textContent='BEJ: forward'; bcjL.textContent='BCJ: forward';
+    main.setAttribute('opacity','.75'); opp.setAttribute('opacity','1');
+    txt.textContent='Saturation: both junctions forward; collector current is no longer β-controlled.';
+  }else{
+    bej.setAttribute('fill','#ff5d6c'); bcj.setAttribute('fill','#ff5d6c');
+    bej.setAttribute('opacity','.22'); bcj.setAttribute('opacity','.22');
+    bejL.textContent='BEJ: reverse / off'; bcjL.textContent='BCJ: reverse';
+    main.setAttribute('opacity','.12'); opp.setAttribute('opacity','0');
+    txt.textContent='Cutoff: not enough base-emitter forward bias; almost no collector current.';
+  }
+  drawCarriers();
+}
+$$('.modeBtn').forEach(b=>b.addEventListener('click',()=>setPhysicsMode(b.dataset.mode)));
+function animateCarriers(t){
+  [...carriers.children].forEach((c,i)=>{
+    const phase = Number(c.dataset.phase), speed=Number(c.dataset.speed);
+    let p = ((t/2600*speed + phase) % 1);
+    if(physicsMode==='cutoff'){
+      const x = 100 + 25*Math.sin(t/650 + phase);
+      const y = 140 + 45*Math.sin(t/800 + phase*1.7);
+      c.setAttribute('cx',x); c.setAttribute('cy',y);
+    }else if(physicsMode==='sat' && i%4===0){
+      const x = 545 - p*205;
+      const y = 178 + 34*Math.sin(p*Math.PI);
+      c.setAttribute('cx',x); c.setAttribute('cy',y);
+      c.setAttribute('fill','#ffd166');
+    }else{
+      const x = 68 + p*480;
+      const y = 145 - 34*Math.sin(p*Math.PI*1.2) + 20*Math.sin(p*2*Math.PI + phase);
+      c.setAttribute('cx',x); c.setAttribute('cy',y);
+      c.setAttribute('fill','#38b5e1');
+    }
+  });
+  requestAnimationFrame(animateCarriers);
+}
+setPhysicsMode('active'); requestAnimationFrame(animateCarriers);
+
+// Modes panel
+function updateModes(){
+  const vbe = parseFloat($('#vbeSlider').value), vce = parseFloat($('#vceSlider').value);
+  $('#vbeText').textContent = vbe.toFixed(2)+' V';
+  $('#vceText').textContent = vce.toFixed(2)+' V';
+  let region, cls, bej, bcj, rule, msg;
+  const vcesat = 0.2;
+  if(vbe < 0.55){
+    region='Cutoff'; cls='danger'; bej='Reverse'; bcj='Reverse'; rule='I_C≈0';
+    msg='Cutoff: base-emitter voltage is too small, so the transistor is off.';
+  }else if(vce <= vcesat){
+    region='Saturation'; cls='warn'; bej='Forward'; bcj='Forward'; rule='I_C≠βI_B';
+    msg='Saturation: V_CE is too small; the collector-base junction becomes forward biased. Treat it as a switch, not an amplifier.';
+  }else{
+    region='Active'; cls='good'; bej='Forward'; bcj='Reverse'; rule='I_C=βI_B';
+    msg='Active: BEJ forward, BCJ reverse. This is the amplifier/current-source region.';
+  }
+  $('#modeBanner').textContent='Region: '+region;
+  $('#bejState').textContent=bej; $('#bcjState').textContent=bcj; $('#modeRule').innerHTML=rule.replaceAll('_','<sub>').replaceAll('≈','≈');
+  const mt = $('#modeText'); mt.className='note '+cls; mt.textContent=msg;
+  // IV dot mapping
+  const x = 70 + Math.min(vce,5)/5*430;
+  let icNorm;
+  if(region==='Cutoff') icNorm = 0.02;
+  else if(region==='Saturation') icNorm = .78;
+  else icNorm = Math.min(.9, .22 + (vbe-0.55)/0.35*.65);
+  const y = 305 - icNorm*240;
+  $('#ivDot').setAttribute('cx',x); $('#ivDot').setAttribute('cy',y);
+  $('#ivDotLabel').setAttribute('x',x+12); $('#ivDotLabel').setAttribute('y',y-8);
+  setPhysicsMode(region==='Active'?'active':region==='Saturation'?'sat':'cutoff');
+}
+$('#vbeSlider').addEventListener('input',updateModes); $('#vceSlider').addEventListener('input',updateModes);
+updateModes();
+
+function fmtMA(a){return (a*1e3).toFixed(2)+' mA'}
+function fmtUA(a){return (a*1e6).toFixed(2)+' µA'}
+function fmtV(v){return v.toFixed(2)+' V'}
+function fmtK(r){return (r/1000).toFixed(2)+' kΩ'}
+function val(id){return parseFloat($(id).value)}
+
+function updateQ(){
+  const VB=val('#inVB'), VCC=val('#inVCC'), RC=val('#inRC')*1000, RE=val('#inRE')*1000, beta=val('#inBeta'), VCEsat=val('#inVCEsat');
+  let aIE=Math.max((VB-0.7)/RE,0), aIB=aIE/(1+beta), aIC=aIE-aIB, aVE=aIE*RE, aVC=VCC-aIC*RC, aVCE=aVC-aVE;
+  $('#aIE').textContent=fmtMA(aIE); $('#aIB').textContent=fmtUA(aIB); $('#aIC').textContent=fmtMA(aIC); $('#aVE').textContent=fmtV(aVE); $('#aVC').textContent=fmtV(aVC); $('#aVCE').textContent=fmtV(aVCE);
+  let region, fIC, fVCE, fIB, forced, comment;
+  if(VB <= 0.7){
+    region='Cutoff'; fIC=0; fVCE=VCC; fIB=0; forced='—'; comment='V_B is not high enough to forward-bias the base-emitter junction. The transistor is off.';
+  }else if(aVCE > VCEsat){
+    region='Active'; fIC=aIC; fVCE=aVCE; fIB=aIB; forced=beta.toFixed(0); comment='Since V_CE > V_CE,sat, the active assumption is valid.';
+  }else{
+    region='Saturation'; const VE=VB-0.7; fVCE=VCEsat; fIC=Math.max((VCC - VCEsat - VE)/RC,0); const IE=Math.max(VE/RE,0); fIB=Math.max(IE - fIC,0); forced=fIB>0?(fIC/fIB).toFixed(2):'∞'; comment='Active assumption failed. Redo using V_BE≈0.7 V and V_CE≈V_CE,sat. Notice forced β is much smaller than normal β.';
+  }
+  $('#qMode').textContent=region==='Active'?'Active mode confirmed':region==='Saturation'?'Active failed → saturation mode':'Cutoff mode';
+  $('#fRegion').textContent=region; $('#fIC').textContent=fmtMA(fIC); $('#fVCE').textContent=fmtV(fVCE); $('#fIB').textContent=fIB===0?'0':fmtUA(fIB); $('#fForced').textContent=forced;
+  $('#qComment').innerHTML=comment.replaceAll('V_CE','V<sub>CE</sub>').replaceAll('V_CE,sat','V<sub>CE,sat</sub>').replaceAll('V_BE','V<sub>BE</sub>');
+  $('#circuitState').textContent = region==='Active'?'Active: current controlled by base':region==='Saturation'?'Saturation: switch-like, β rule lost':'Cutoff: almost no current';
+  $('#icArrow').setAttribute('opacity', region==='Cutoff'?'.1':region==='Saturation'?'.65':'.9');
+  $('#ibArrow').setAttribute('opacity', region==='Cutoff'?'.1':region==='Saturation'?'1':'.55');
+  $('#ieArrow').setAttribute('opacity', region==='Cutoff'?'.1':'.8');
+}
+['#inVB','#inVCC','#inRC','#inRE','#inBeta','#inVCEsat'].forEach(id=>$(id).addEventListener('input',updateQ));
+$('#loadEx1').addEventListener('click',()=>{$('#inVB').value=4;$('#inVCC').value=10;$('#inRC').value=4.7;$('#inRE').value=3.3;$('#inBeta').value=100;updateQ();});
+$('#loadEx2').addEventListener('click',()=>{$('#inVB').value=6;$('#inVCC').value=10;$('#inRC').value=4.7;$('#inRE').value=3.3;$('#inBeta').value=100;updateQ();});
+updateQ();
+
+function updateDesign(){
+  const VCC=val('#dVCC'), IC=val('#dIC')/1000, fRE=val('#dFRE'), fRC=val('#dFRC'), RT=val('#dRT')*1000, beta=val('#dBeta');
+  const VE=VCC*fRE, RE=VE/IC, RC=VCC*fRC/IC, VB=VE+0.7;
+  const R2=RT*VB/VCC, R1=RT-R2, RB=(R1*R2)/(R1+R2);
+  const check = RB/(1+beta), ratio=check/RE;
+  $('#dVE').textContent=fmtV(VE); $('#dRE').textContent=fmtK(RE); $('#dRC').textContent=fmtK(RC); $('#dVB').textContent=fmtV(VB); $('#dR2').textContent=fmtK(R2); $('#dR1').textContent=fmtK(R1);
+  $('#dRobust').textContent = (ratio<0.1?'OK: ':'Weak: ') + (check.toFixed(0)+' Ω vs R_E '+fmtK(RE));
+}
+['#dVCC','#dIC','#dFRE','#dFRC','#dRT','#dBeta'].forEach(id=>$(id).addEventListener('input',updateDesign));
+updateDesign();
+</script>
+</body>
+</html>
